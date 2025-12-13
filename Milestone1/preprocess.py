@@ -1,44 +1,33 @@
 import pandas as pd
 
-def normalize_timestamp(df, col):
-    df[col] = pd.to_datetime(df[col], errors='coerce', utc=True)
-    df = df.dropna(subset=[col])        
-    df = df.sort_values(col)            
-    return df
+def preprocess_data(minute_steps_path, daily_steps_path, sleep_path):
+    minute_steps = pd.read_csv(minute_steps_path)
+    daily_steps = pd.read_csv(daily_steps_path)
+    sleep = pd.read_csv(sleep_path)
 
-def resample_1min(df, time_col, agg='sum'):
-    df = df.set_index(time_col)
-    if agg == 'sum':
-        df = df.resample("1T").sum()
-    else:
-        df = df.resample("1T").mean()
-    return df.reset_index()
+    minute_steps['ActivityMinute'] = pd.to_datetime(minute_steps['ActivityMinute'])
 
-def preprocess_data(minute_steps_file, daily_steps_file, sleep_file):
+    minute_steps['Date'] = minute_steps['ActivityMinute'].dt.date
 
-    minute_steps = pd.read_csv(minute_steps_file)
-    daily_steps = pd.read_csv(daily_steps_file)
-    sleep = pd.read_csv(sleep_file)
 
-    minute_steps = minute_steps.rename(columns={"ActivityMinute": "Timestamp"})
-    daily_steps = daily_steps.rename(columns={"ActivityDay": "Timestamp"})
-    sleep = sleep.rename(columns={"SleepDay": "Timestamp"})
+    minute_daily = (
+        minute_steps
+        .groupby('Date')['Steps']
+        .sum()
+        .reset_index()
+    )
+    daily_steps['ActivityDay'] = pd.to_datetime(daily_steps['ActivityDay'])
+    daily_steps['Date'] = daily_steps['ActivityDay'].dt.date
 
-    minute_steps = normalize_timestamp(minute_steps, "Timestamp")
-    daily_steps = normalize_timestamp(daily_steps, "Timestamp")
-    sleep = normalize_timestamp(sleep, "Timestamp")
+    daily_steps_clean = daily_steps[['Date', 'StepTotal']].rename(
+        columns={'StepTotal': 'DailySteps'}
+    )
+    sleep['SleepDay'] = pd.to_datetime(sleep['SleepDay'])
+    sleep['Date'] = sleep['SleepDay'].dt.date
 
-    minute_steps = resample_1min(minute_steps, "Timestamp", agg='sum')
-    daily_steps = resample_1min(daily_steps, "Timestamp", agg='sum')
-    sleep = resample_1min(sleep, "Timestamp", agg='mean')
+    sleep_clean = sleep[['Date', 'TotalMinutesAsleep']]
 
-    df = minute_steps.merge(daily_steps, on="Timestamp", how="outer")
-    df = df.merge(sleep, on="Timestamp", how="outer")
+    merged = minute_daily.merge(daily_steps_clean, on='Date', how='left')
+    merged = merged.merge(sleep_clean, on='Date', how='left')
 
-    df = df.ffill().bfill()
-
-    df = df.sort_values("Timestamp")
-
-    df.to_csv("Milestone1/cleaned_fitness_data.csv", index=False)
-
-    return df
+    return merged
