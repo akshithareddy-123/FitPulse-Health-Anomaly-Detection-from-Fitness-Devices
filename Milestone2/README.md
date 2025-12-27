@@ -43,5 +43,3 @@ The dataset used for this milestone is stored as `Clean.csv` inside the `data/` 
 - Heart rate data showed clear temporal trends and seasonal variations.
 - Clustering helped identify distinct behavioral patterns that can represent normal and atypical behavior.
 - Dimensionality reduction using PCA enabled effective visualization of behavioral clusters.
-
-## Folder Structure
