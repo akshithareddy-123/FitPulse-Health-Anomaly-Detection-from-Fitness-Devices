@@ -5,7 +5,8 @@
 
 ## Objective
 The objective of Milestone 3 is to detect, label, and visualize anomalies in fitness device data.  
-This milestone focuses on identifying abnormal patterns in heart rate and sleep behavior using time-series forecasting, statistical thresholding, and visual analysis.
+This milestone focuses on identifying abnormal patterns in heart rate and sleep behavior using
+time-series forecasting, statistical thresholding, cluster-based insights, and visual analysis.
 
 ---
 
@@ -16,36 +17,44 @@ Files used for analysis:
 - heartrate_seconds_merged.csv – Heart rate time-series data
 - sleepDay_merged.csv – Sleep duration data
 
+The dataset provides continuous timestamp-based data suitable for time-series anomaly detection.
+
 ---
 
 ## Steps Followed
 
 ### 1. Residual Analysis using Prophet
 A Prophet time-series forecasting model was trained on heart rate data for a single user.  
-Residuals were calculated as the difference between actual and predicted values to identify abnormal behavior.
+The model generated predicted values, and residuals were computed as:
+
+Residual = Actual Value − Predicted Value  
+
+Large residual values indicate deviations from normal behavior and potential anomalies.
 
 ---
 
 ### 2. Threshold-based Anomaly Detection
-Statistical thresholds were applied:
-- Heart rate anomalies: values exceeding 2 × standard deviation of residuals  
-- Sleep anomalies: values deviating more than 1.5 × standard deviation from the mean  
+Statistical thresholds were applied to identify abnormal observations:
+- Heart rate anomalies were detected when residuals exceeded **2 × standard deviation**
+- Sleep anomalies were detected when sleep duration deviated more than **1.5 × standard deviation** from the mean  
 
-Data points beyond these thresholds were marked as anomalies.
+Data points crossing these thresholds were marked as anomalies.
 
 ---
 
-### 3. Anomaly Labeling
-Each data point was labeled as either Normal or Anomaly, ensuring clear differentiation between regular and abnormal observations.
+### 3. Cluster-based Anomaly Detection
+Clustering results obtained during **Milestone 2** were reused for anomaly identification.  
+Outlier clusters representing unusual behavioral patterns were treated as potential anomalies
+and were cross-validated using residual-based and threshold-based detection methods.
 
 ---
 
 ### 4. Visualization of Anomalies
-Time-series plots were created with anomalies highlighted:
-- Heart rate anomalies marked in red  
-- Sleep duration anomalies highlighted on sleep pattern plots  
+Time-series visualizations were created to highlight anomalous behavior:
+- Heart rate anomalies were marked in red on the heart rate time-series plot
+- Sleep anomalies were highlighted on the sleep duration plot  
 
-These visualizations help in easy interpretation of abnormal health patterns.
+These visualizations provide intuitive understanding of abnormal health patterns.
 
 ---
 
@@ -60,9 +69,10 @@ These visualizations help in easy interpretation of abnormal health patterns.
 ---
 
 ## Key Insights
-- Sudden spikes and drops in heart rate were successfully detected.  
-- Abnormal sleep durations were identified when sleep time deviated from normal patterns.  
-- Prophet-based modeling effectively captured time-dependent trends in health data.
+- Sudden spikes and drops in heart rate were successfully detected as anomalies.
+- Abnormal sleep durations were identified when sleep time deviated significantly from normal patterns.
+- Prophet-based residual analysis effectively captured temporal trends in health data.
+- Combining residual analysis, thresholding, and clustering improved anomaly detection reliability.
 
 ---
 
@@ -75,4 +85,6 @@ These visualizations help in easy interpretation of abnormal health patterns.
 
 ## Conclusion
 Milestone 3 successfully demonstrates anomaly detection and visualization using fitness device data.  
-The approach provides an effective method for identifying abnormal health patterns from wearable devices.
+The integration of Prophet-based forecasting, statistical thresholding, cluster-based insights, and
+visual analysis provides an effective approach for identifying abnormal health patterns from wearable
+devices.
